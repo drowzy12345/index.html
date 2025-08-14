@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiveM DUI Menu</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: rgba(20, 20, 20, 0.85);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 20px;
+    }
+    h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    .menu {
+        background: rgba(30, 30, 30, 0.95);
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.8);
+        width: 300px;
+    }
+    .btn {
+        background: #222;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 8px;
+        text-align: center;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .btn:hover {
+        background: #555;
+    }
+</style>
+</head>
+<body>
+    <h1>FiveM DUI Menu</h1>
+    <div class="menu">
+        <div class="btn" onclick="sendEvent('heal')">Heal Player</div>
+        <div class="btn" onclick="sendEvent('givegun')">Give Weapon</div>
+        <div class="btn" onclick="sendEvent('car')">Spawn Car</div>
+        <div class="btn" onclick="sendEvent('freecam')">Toggle Freecam</div>
+    </div>
+
+<script>
+function sendEvent(action) {
+    // Will trigger in client Lua
+    console.log("Action:", action);
+    if (typeof window.invokeNative === "function") {
+        window.invokeNative("sendDuiMessage", JSON.stringify({ event: action }));
+    }
+}
+</script>
+</body>
+</html>
