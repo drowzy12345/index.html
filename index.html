@@ -1,64 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FiveM DUI Menu</title>
-<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: rgba(20, 20, 20, 0.85);
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-top: 20px;
+  <meta charset="UTF-8">
+  <title>DUI Menu</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      user-select: none;
     }
-    h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        letter-spacing: 2px;
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top left, #0a0a0a, #000);
+      overflow: hidden;
     }
     .menu {
-        background: rgba(30, 30, 30, 0.95);
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.8);
-        width: 300px;
+      width: 700px;
+      height: 500px;
+      display: flex;
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      background: rgba(20, 20, 20, 0.6);
+      box-shadow: 0 0 25px rgba(255, 0, 0, 0.6), 0 0 40px rgba(0, 150, 255, 0.4);
+      overflow: hidden;
+      animation: fadeIn 0.5s ease;
     }
-    .btn {
-        background: #222;
-        padding: 10px;
-        margin: 5px 0;
-        border-radius: 8px;
-        text-align: center;
-        cursor: pointer;
-        transition: background 0.2s;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to   { opacity: 1; transform: scale(1); }
     }
-    .btn:hover {
-        background: #555;
+    .sidebar {
+      width: 180px;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 10px;
+      border-right: 2px solid rgba(255, 0, 0, 0.4);
     }
-</style>
+    .sidebar h2 {
+      color: white;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 20px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px red;
+    }
+    .tab {
+      padding: 12px;
+      margin: 5px 0;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      text-align: center;
+      color: #bbb;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 15px;
+    }
+    .tab:hover {
+      background: rgba(255,0,0,0.8);
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(255,0,0,0.7);
+    }
+    .tab.active {
+      background: linear-gradient(90deg, rgba(255,0,0,0.8), rgba(0,150,255,0.8));
+      color: #fff;
+      box-shadow: 0 0 15px rgba(255,0,0,0.9);
+    }
+    .content {
+      flex: 1;
+      padding: 25px;
+      color: white;
+      overflow-y: auto;
+    }
+    .content h3 {
+      margin-top: 0;
+      text-shadow: 0 0 6px rgba(0,150,255,0.8);
+    }
+    .button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border: none;
+      border-radius: 10px;
+      color: #ddd;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .button:hover {
+      background: rgba(0,150,255,0.8);
+      color: #fff;
+      transform: translateX(5px);
+      box-shadow: 0 0 12px rgba(0,150,255,0.7);
+    }
+  </style>
 </head>
 <body>
-    <h1>FiveM DUI Menu</h1>
-    <div class="menu">
-        <div class="btn" onclick="sendEvent('heal')">Heal Player</div>
-        <div class="btn" onclick="sendEvent('givegun')">Give Weapon</div>
-        <div class="btn" onclick="sendEvent('car')">Spawn Car</div>
-        <div class="btn" onclick="sendEvent('freecam')">Toggle Freecam</div>
+  <div class="menu">
+    <div class="sidebar">
+      <h2>DUI MENU</h2>
+      <div class="tab active" onclick="switchTab('player')">Player</div>
+      <div class="tab" onclick="switchTab('vehicles')">Vehicles</div>
+      <div class="tab" onclick="switchTab('weapons')">Weapons</div>
+      <div class="tab" onclick="switchTab('settings')">Settings</div>
     </div>
+    <div class="content" id="content">
+      <!-- Default tab content -->
+      <h3>Player Options</h3>
+      <button class="button" onclick="sendAction('heal')">Heal Player</button>
+      <button class="button" onclick="sendAction('armor')">Give Armor</button>
+      <button class="button" onclick="sendAction('noclip')">Toggle Noclip</button>
+    </div>
+  </div>
 
-<script>
-function sendEvent(action) {
-    // Will trigger in client Lua
-    console.log("Action:", action);
-    if (typeof window.invokeNative === "function") {
-        window.invokeNative("sendDuiMessage", JSON.stringify({ event: action }));
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const content = document.getElementById("content");
+
+    function switchTab(tab) {
+      tabs.forEach(t => t.classList.remove("active"));
+      event.target.classList.add("active");
+      if (tab === "player") {
+        content.innerHTML = `
+          <h3>Player Options</h3>
+          <button class="button" onclick="sendAction('heal')">Heal Player</button>
+          <button class="button" onclick="sendAction('armor')">Give Armor</button>
+          <button class="button" onclick="sendAction('noclip')">Toggle Noclip</button>
+        `;
+      } else if (tab === "vehicles") {
+        content.innerHTML = `
+          <h3>Vehicle Options</h3>
+          <button class="button" onclick="sendAction('spawn_car')">Spawn Car</button>
+          <button class="button" onclick="sendAction('fix_car')">Repair Car</button>
+          <button class="button" onclick="sendAction('boost_car')">Boost Engine</button>
+        `;
+      } else if (tab === "weapons") {
+        content.innerHTML = `
+          <h3>Weapon Options</h3>
+          <button class="button" onclick="sendAction('give_pistol')">Give Pistol</button>
+          <button class="button" onclick="sendAction('give_rifle')">Give Rifle</button>
+          <button class="button" onclick="sendAction('max_ammo')">Max Ammo</button>
+        `;
+      } else if (tab === "settings") {
+        content.innerHTML = `
+          <h3>Settings</h3>
+          <button class="button" onclick="sendAction('toggle_hud')">Toggle HUD</button>
+          <button class="button" onclick="sendAction('toggle_music')">Toggle Music</button>
+          <button class="button" onclick="sendAction('close_menu')">Close Menu</button>
+        `;
+      }
     }
-}
-</script>
+
+    function sendAction(action) {
+      fetch(`https://${GetParentResourceName()}/duiMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action })
+      });
+    }
+
+    // Listen for MachoSendDuiMessage from Lua
+    window.addEventListener("message", (event) => {
+      let data = event.data;
+      if (data.action === "notify") {
+        alert(data.text);
+      }
+    });
+  </script>
 </body>
 </html>
