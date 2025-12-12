@@ -52,6 +52,12 @@
     getSubMenu = function(callback)
         local setOptions = {
             {
+    label = 'Model',
+    type = 'submenu',
+    icon = 'ph-money',
+    getSubMenu = function(callback)
+        local setOptions = {
+            {
                 label = 'Apearance',
                 type = 'submenu',
                 icon = 'ph-list',
@@ -71,34 +77,53 @@
                             end
                         },
                         {
-                            label = 'Randomize Outfit',
+                            label = 'Complete Random Outfit',
                             type = 'button',
                             onConfirm = function()
                                 local ped = PlayerPedId()
-                                -- randomize drawable and texture ids for main components and props
-                                for i = 0, 11 do
-                                    local drawableCount = GetNumberOfPedDrawableVariations(ped, i)
-                                    if drawableCount > 0 then
-                                        local drawable = math.random(0, drawableCount - 1)
-                                        local textureCount = GetNumberOfPedTextureVariations(ped, i, drawable)
-                                        local texture = math.random(0, math.max(textureCount - 1, 0))
-                                        SetPedComponentVariation(ped, i, drawable, texture, 2)
-                                    end
+                                -- Define a fixed outfit with randomized, but consistent, matching components per slot
+                                -- You can expand these ranges to whatever is appropriate for your models
+                                local outfit = {
+                                    [3] = {ids = {0,1,2,5,10}, textures = {0,1}}, -- arms
+                                    [4] = {ids = {10,21,39,42,45,56}, textures = {0,1}},
+                                    [6] = {ids = {1,3,6,10,11,17,19}, textures = {0,1}},
+                                    [8] = {ids = {0,1,8,15,30,52}, textures = {0,1}},
+                                    [11] = {ids = {0,10,11,23,45,57,109}, textures = {0,1}}
+                                }
+                                for comp, v in pairs(outfit) do
+                                    local drawable = v.ids[math.random(#v.ids)]
+                                    local texture = v.textures[math.random(#v.textures)]
+                                    SetPedComponentVariation(ped, comp, drawable, texture, 2)
                                 end
-                                -- Props (Hats, Glasses etc)
-                                for prop = 0, 7 do
-                                    local propCount = GetNumberOfPedPropDrawableVariations(ped, prop)
-                                    if propCount > 0 then
-                                        local propDrawable = math.random(0, propCount - 1)
-                                        local propTextureCount = GetNumberOfPedPropTextureVariations(ped, prop, propDrawable)
-                                        local propTexture = math.random(0, math.max(propTextureCount - 1, 0))
-                                        SetPedPropIndex(ped, prop, propDrawable, propTexture, true)
+                                -- Random but valid props (leave some slots empty)
+                                local propIndices = {
+                                    [0] = {ids = {1, 2, 7}, textures = {0, 1}},
+                                    [1] = {ids = {0, 1, 2}, textures = {0, 1}},
+                                    [2] = {ids = {0, 6}, textures = {0, 1}},
+                                    [6] = {ids = {0, 1}, textures = {0, 1}},
+                                    [7] = {ids = {0}, textures = {0}}
+                                }
+                                for i = 0, 7 do
+                                    local propInfo = propIndices[i]
+                                    if propInfo and math.random() > 0.3 then -- 70% chance to wear this prop
+                                        local propDrawable = propInfo.ids[math.random(#propInfo.ids)]
+                                        local propTexture = propInfo.textures[math.random(#propInfo.textures)]
+                                        SetPedPropIndex(ped, i, propDrawable, propTexture, true)
                                     else
-                                        ClearPedProp(ped, prop)
+                                        ClearPedProp(ped, i)
                                     end
                                 end
                             end
                         },
+                        {
+                            label = 'Sub Option 2',
+                            type = 'button',
+                            onConfirm = function() end
+                        }
+                    }
+                    subCallback(subOptions)
+                end
+            },
                         {
                             label = 'Sub Option 2',
                             type = 'button',
@@ -227,6 +252,13 @@
                         noclip = toggled
                     end
                 },
+                {
+        label = 'Infinite Punch',
+        type = 'button',
+        onConfirm = function()
+            ClearPedTasksImmediately(PlayerPedId())
+        end
+            }
             }
         })
 
