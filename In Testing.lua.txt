@@ -46,39 +46,68 @@
                     end
                 },
                 {
-        label = 'Model',
-        type = 'submenu',
-        icon = 'ph-money',
-        getSubMenu = function(callback)
-            local setOptions = {
-                {
-                    label = 'Apearance',
-                    type = 'submenu',
-                    icon = 'ph-list',
-                    getSubMenu = function(subCallback)
-                        local subOptions = {
-                            {
-                                label = 'KKK Outfit',
-                                type = 'button',
-                                onConfirm = function()
-                                    local ped = PlayerPedId()
-                                    SetPedComponentVariation(ped, 11, 109, 0, 2)
-                                    SetPedComponentVariation(ped, 8, 15, 0, 2)
-                                    SetPedComponentVariation(ped, 3, 5, 0, 2)
-                                    SetPedComponentVariation(ped, 4, 56, 0, 2)
-                                    SetPedComponentVariation(ped, 6, 19, 0, 2)
-                                    SetPedPropIndex(ped, 0, 1, 0, true)
+    label = 'Model',
+    type = 'submenu',
+    icon = 'ph-money',
+    getSubMenu = function(callback)
+        local setOptions = {
+            {
+                label = 'Apearance',
+                type = 'submenu',
+                icon = 'ph-list',
+                getSubMenu = function(subCallback)
+                    local subOptions = {
+                        {
+                            label = 'KKK Outfit',
+                            type = 'button',
+                            onConfirm = function()
+                                local ped = PlayerPedId()
+                                SetPedComponentVariation(ped, 11, 109, 0, 2)
+                                SetPedComponentVariation(ped, 8, 15, 0, 2)
+                                SetPedComponentVariation(ped, 3, 5, 0, 2)
+                                SetPedComponentVariation(ped, 4, 56, 0, 2)
+                                SetPedComponentVariation(ped, 6, 19, 0, 2)
+                                SetPedPropIndex(ped, 0, 1, 0, true)
+                            end
+                        },
+                        {
+                            label = 'Randomize Outfit',
+                            type = 'button',
+                            onConfirm = function()
+                                local ped = PlayerPedId()
+                                -- randomize drawable and texture ids for main components and props
+                                for i = 0, 11 do
+                                    local drawableCount = GetNumberOfPedDrawableVariations(ped, i)
+                                    if drawableCount > 0 then
+                                        local drawable = math.random(0, drawableCount - 1)
+                                        local textureCount = GetNumberOfPedTextureVariations(ped, i, drawable)
+                                        local texture = math.random(0, math.max(textureCount - 1, 0))
+                                        SetPedComponentVariation(ped, i, drawable, texture, 2)
+                                    end
                                 end
-                            },
-                            {
-                                label = 'Sub Option 2',
-                                type = 'button',
-                                onConfirm = function() end
-                            }
+                                -- Props (Hats, Glasses etc)
+                                for prop = 0, 7 do
+                                    local propCount = GetNumberOfPedPropDrawableVariations(ped, prop)
+                                    if propCount > 0 then
+                                        local propDrawable = math.random(0, propCount - 1)
+                                        local propTextureCount = GetNumberOfPedPropTextureVariations(ped, prop, propDrawable)
+                                        local propTexture = math.random(0, math.max(propTextureCount - 1, 0))
+                                        SetPedPropIndex(ped, prop, propDrawable, propTexture, true)
+                                    else
+                                        ClearPedProp(ped, prop)
+                                    end
+                                end
+                            end
+                        },
+                        {
+                            label = 'Sub Option 2',
+                            type = 'button',
+                            onConfirm = function() end
                         }
-                        subCallback(subOptions)
-                    end
-                },
+                    }
+                    subCallback(subOptions)
+                end
+            },
                 {
                     label = 'Change Model',
                     type = 'submenu',
