@@ -253,12 +253,14 @@
                     end
                 },
                 {
-        label = 'Infinite Punch',
-        type = 'button',
-        onConfirm = function()
-            ClearPedTasksImmediately(PlayerPedId())
-        end
-            }
+    label = 'Infinite Punch',
+    type = 'button',
+    onConfirm = function()
+        
+                            ClearPedTasksImmediately(PlayerPedId())
+                            
+    end
+}
             }
         })
 
